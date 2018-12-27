@@ -29,7 +29,14 @@ impl Pencil {
     }
 
     pub fn sharpen(&mut self) {
-        self.durability = self.max_durability
+        if self.length != 0 {
+            self.durability = self.max_durability;
+            self.length -= 1
+        }
+    }
+
+    pub fn erase(&mut self) {
+
     }
 }
 
@@ -54,7 +61,7 @@ pub mod test {
     }
 
     #[test]
-    fn given_string_with_writes_then_writes_to_page() {
+    fn given_string_then_writes_to_page() {
         let string = "test test\n\t\t";
         let mut pencil = Pencil::new(8, 4, 4);
 
@@ -87,11 +94,30 @@ pub mod test {
 
     #[test]
     fn given_durability_runs_out_then_can_sharpen_to_max() {
-        let mut pencil = Pencil::new(7, 4, 4);
+        let mut pencil = Pencil::new(7, 1, 4);
 
         pencil.write("unicorn".to_string());
         pencil.sharpen();
 
         assert_eq!(pencil.durability, 7);
+    }
+
+    #[test]
+    fn when_sharpened_then_reduces_length() {
+        let mut pencil = Pencil::new(7, 4, 4);
+
+        pencil.sharpen();
+
+        assert_eq!(pencil.length, 3);
+    }
+
+    #[test]
+    fn given_pencil_with_no_length_when_sharpened_then_does_not_restore_durability() {
+        let mut pencil = Pencil::new(7, 0, 4);
+
+        pencil.write("unicorn".to_string());
+        pencil.sharpen();
+
+        assert_eq!(pencil.durability, 0);
     }
 }
