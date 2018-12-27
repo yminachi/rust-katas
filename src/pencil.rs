@@ -1,3 +1,5 @@
+use std::cmp::min;
+
 struct Pencil {
     max_durability: u32,
     durability: u32,
@@ -41,9 +43,16 @@ impl Pencil {
         if let Some(matched) = last_match {
             let mut new_string = "".to_string();
 
+            let start_index = matched.0 + word.len() - min(word.len(), self.eraser_durability as usize);
+            let end_index = matched.0 + word.len();
+
             for (i, c) in self.page.chars().enumerate() {
-                let is_in_matched_range = i >= matched.0 && i < matched.0 + word.len();
-                new_string.push(if is_in_matched_range {' '} else {c});
+                if i >= start_index && i < end_index {
+                    new_string.push(' ');
+                    self.eraser_durability -= 1;
+                } else {
+                    new_string.push(c)
+                }
             }
 
             self.page = new_string
@@ -140,5 +149,25 @@ pub mod test {
         pencil.erase("three".to_string());
 
         assert_eq!(pencil.page, "one two three four       two one".to_string());
+    }
+
+    #[test]
+    fn when_erasing_depletes_eraser_durability() {
+        let mut pencil = Pencil::new(100, 7, 5);
+
+        pencil.write("one two three four three two one".to_string());
+        pencil.erase("three".to_string());
+
+        assert_eq!(pencil.eraser_durability, 0);
+    }
+
+    #[test]
+    fn given_not_enough_durability_when_erasing_starts_from_end_of_word() {
+        let mut pencil = Pencil::new(100, 7, 3);
+
+        pencil.write("one two three four three two one".to_string());
+        pencil.erase("three".to_string());
+
+        assert_eq!(pencil.page, "one two three four th    two one".to_string());
     }
 }
