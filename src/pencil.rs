@@ -35,8 +35,19 @@ impl Pencil {
         }
     }
 
-    pub fn erase(&mut self) {
+    pub fn erase(&mut self, word: String) {
+        let last_match = self.page.match_indices(&word).last();
 
+        if let Some(matched) = last_match {
+            let mut new_string = "".to_string();
+
+            for (i, c) in self.page.chars().enumerate() {
+                let is_in_matched_range = i >= matched.0 && i < matched.0 + word.len();
+                new_string.push(if is_in_matched_range {' '} else {c});
+            }
+
+            self.page = new_string
+        }
     }
 }
 
@@ -119,5 +130,15 @@ pub mod test {
         pencil.sharpen();
 
         assert_eq!(pencil.durability, 0);
+    }
+
+    #[test]
+    fn given_existing_text_when_erasing_replaces_last_instance_with_spaces_word() {
+        let mut pencil = Pencil::new(100, 7, 5);
+
+        pencil.write("one two three four three two one".to_string());
+        pencil.erase("three".to_string());
+
+        assert_eq!(pencil.page, "one two three four       two one".to_string());
     }
 }
