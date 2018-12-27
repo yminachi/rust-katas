@@ -25,6 +25,8 @@ pub fn calculate_total_sitter_payment(start_time: u32, end_time: u32, rates: &[R
     return current_pay
 }
 
+//Part of me is certain there's a better way to sort an array immutably
+//But I sure couldn't find it
 fn sort_rates_by_end_time(rates: &[Rate]) -> Vec<Rate> {
     let mut rates_copy = vec![Rate { hourly_rate: 0, hour_rate_ends: 0 } ; rates.len()];
     rates_copy.copy_from_slice(rates);
@@ -59,13 +61,19 @@ pub mod test {
     #[test]
     #[should_panic]
     fn given_invalid_start_time_then_panics() {
-        let _ = calculate_total_sitter_payment(16, 4, &[Rate { hourly_rate: 2, hour_rate_ends: 4 }]);
+        calculate_total_sitter_payment(16, 4, &[Rate { hourly_rate: 2, hour_rate_ends: 4 }]);
     }
 
     #[test]
     #[should_panic]
     fn given_invalid_end_time_then_panics() {
-        let _ = calculate_total_sitter_payment(17, 5, &[Rate { hourly_rate: 2, hour_rate_ends: 4 }]);
+        calculate_total_sitter_payment(17, 5, &[Rate { hourly_rate: 2, hour_rate_ends: 4 }]);
+    }
+
+    #[test]
+    #[should_panic]
+    fn given_start_time_after_end_time_then_panics() {
+        calculate_total_sitter_payment(24, 23, &[Rate { hourly_rate: 2, hour_rate_ends: 4 }]);
     }
 
     #[test]
