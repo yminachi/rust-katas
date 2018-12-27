@@ -23,6 +23,9 @@ impl Pencil {
                 self.page.push(character)
             } else if out_of_lead {
                 self.page.push(' ')
+            } else if character.is_uppercase() {
+                self.page.push(character);
+                self.durability -= 2
             } else {
                 self.page.push(character);
                 self.durability -= 1
@@ -70,6 +73,14 @@ pub mod test {
         pencil.write("test".to_string());
 
         assert_eq!(pencil.durability, 0)
+    }
+
+    #[test]
+    fn given_string_with_capital_letters_when_writes_then_lowers_durability_by_two() {
+        let mut pencil = Pencil::new(8, 4, 4);
+        pencil.write("TeSt".to_string());
+
+        assert_eq!(pencil.durability, 2)
     }
 
     #[test]
